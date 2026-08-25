@@ -43,7 +43,7 @@ class WeatherDetailView extends StatelessWidget {
               Text(
                 weatherData.current.condition.text,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 18,
                 ),
               ),
@@ -51,7 +51,7 @@ class WeatherDetailView extends StatelessWidget {
               Text(
                 'H:${(weatherData.current.tempC + 2).toInt()}°  L:${(weatherData.current.tempC - 2).toInt()}°',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 14,
                 ),
               ),

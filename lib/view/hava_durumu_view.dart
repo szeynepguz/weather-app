@@ -40,7 +40,7 @@ class WeatherList extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -82,7 +82,7 @@ class WeatherList extends StatelessWidget {
                             'H:${(controller.weatherList[index].current.tempC + 2).toInt()}° '
                             'L:${(controller.weatherList[index].current.tempC - 2).toInt()}°',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.75),
+                              color: Colors.white.withValues(alpha: 0.75),
                               fontSize: 12,
                             ),
                           ),
@@ -106,8 +106,9 @@ class WeatherList extends StatelessWidget {
                         ),
                         Text(
                           controller.weatherList[index].current.condition.text,
+
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 18,
                           ),
                         ),
