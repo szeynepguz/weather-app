@@ -11,9 +11,7 @@ class WeatherList extends StatelessWidget {
     final controller = context.watch<WeatherController>();
 
     if (controller.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (controller.weatherList.isEmpty) {
@@ -29,21 +27,13 @@ class WeatherList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: controller.weatherList.length,
       itemBuilder: (context, index) {
-        
-
         return Container(
           height: 140,
           width: double.infinity,
-          margin: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
-          ),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [
-                Color(0xFF5732B5),
-                Color(0xFF43258A),
-              ],
+              colors: [Color(0xFF5732B5), Color(0xFF43258A)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -64,7 +54,9 @@ class WeatherList extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WeatherDetailView(weatherData: controller.weatherList[index]),
+                    builder: (context) => WeatherDetailView(
+                      weatherData: controller.weatherList[index],
+                    ),
                   ),
                 );
               },
@@ -105,10 +97,21 @@ class WeatherList extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Image.asset(
-                      'assets/icons/rain.png',
-                      width: 80,
-                      height: 80,
+                    Column(
+                      children: [
+                        Image.asset(
+                          'assets/icons/rain.png',
+                          width: 80,
+                          height: 80,
+                        ),
+                        Text(
+                          controller.weatherList[index].current.condition.text,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
