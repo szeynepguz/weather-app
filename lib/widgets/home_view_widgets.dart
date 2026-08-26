@@ -6,7 +6,9 @@ class NavigationBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color:  Color(0xFF4A2C82),
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Row(
@@ -18,13 +20,13 @@ class NavigationBarWidget extends StatelessWidget {
                   'assets/icons/chevron.left.png',
                   width: 20,
                   height: 20,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
                 Image.asset(
                   'assets/icons/leftitle.png',
                   width: 130,
                   height: 40,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
               ],
             ),
@@ -34,7 +36,7 @@ class NavigationBarWidget extends StatelessWidget {
                   'assets/icons/rightitle.png',
                   width: 20,
                   height: 20,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
               ],
             ),
@@ -44,4 +46,3 @@ class NavigationBarWidget extends StatelessWidget {
     );
   }
 }
-
