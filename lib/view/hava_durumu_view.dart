@@ -6,6 +6,23 @@ import '../view/weather_detail_view.dart';
 class WeatherList extends StatelessWidget {
   const WeatherList({super.key});
 
+  String _getWeatherIconByCondition(String conditionText) {
+    if (conditionText.toLowerCase().contains('rain')) {
+      return 'assets/icons/rain.png';
+    }
+    if (conditionText.toLowerCase().contains('sunny')) {
+      return 'assets/icons/sunny.png';
+    } else if (conditionText.toLowerCase().contains('partly cloudy')) {
+      return 'assets/icons/cloudy.png';
+    } else if (conditionText.toLowerCase().contains('patchy rain nearby')) {
+      return 'assets/icons/nearby_rain.png';
+    } else if (conditionText.toLowerCase().contains('thundery outbreaks possible')) {
+      return 'assets/icons/lightning.png';
+    } else {
+      return 'assets/icons/sun_cloud.png';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<WeatherController>();
@@ -23,104 +40,109 @@ class WeatherList extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: controller.weatherList.length,
-      itemBuilder: (context, index) {
-        return Container(
-          height: 140,
-          width: double.infinity,
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF5732B5), Color(0xFF43258A)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.white.withValues(alpha: 0.2),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+      child: Column(
+        children: List.generate(
+          controller.weatherList.length,
+          (index) => Container(
+            height: 140,
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF5732B5), Color(0xFF43258A)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
               borderRadius: BorderRadius.circular(18),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WeatherDetailView(
-                      weatherData: controller.weatherList[index],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(18),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WeatherDetailView(
+                        weatherData: controller.weatherList[index],
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${controller.weatherList[index].current.tempC.toInt()}°',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 32,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'H:${(controller.weatherList[index].current.tempC + 2).toInt()}° '
+                              'L:${(controller.weatherList[index].current.tempC - 2).toInt()}°',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.75),
+                                fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${controller.weatherList[index].location.name}, ${controller.weatherList[index].location.country}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            '${controller.weatherList[index].current.tempC.toInt()}°',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 32,
-                              fontWeight: FontWeight.w400,
+                          Image.asset(
+                            _getWeatherIconByCondition(
+                              controller.weatherList[index].current.condition.text,
                             ),
+                            width: 60,
+                            height: 60,
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 4),
                           Text(
-                            'H:${(controller.weatherList[index].current.tempC + 2).toInt()}° '
-                            'L:${(controller.weatherList[index].current.tempC - 2).toInt()}°',
+                            controller.weatherList[index].current.condition.text,
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.75),
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${controller.weatherList[index].location.name}, ${controller.weatherList[index].location.country}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 14,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    Column(
-                      children: [
-                        Image.asset(
-                          'assets/icons/rain.png',
-                          width: 80,
-                          height: 80,
-                        ),
-                        Text(
-                          controller.weatherList[index].current.condition.text,
-
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
