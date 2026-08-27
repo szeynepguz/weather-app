@@ -8,19 +8,29 @@ class WeatherDetailView extends StatelessWidget {
   const WeatherDetailView({super.key, required this.weatherData});
 
   String _getWeatherIcon(String conditionText) {
-    final condition = conditionText.toLowerCase();
-
-    if (condition.contains('rain') || condition.contains('yağmur')) {
+    if (conditionText.toLowerCase().contains('rain')) {
       return 'assets/icons/rain.png';
-    } else if (condition.contains('sunny') || condition.contains('güneşli') || condition.contains('clear')) {
+    } else if (conditionText.toLowerCase().contains('sunny')) {
       return 'assets/icons/sunny.png';
-    } else if (condition.contains('partly cloudy') || condition.contains('parçalı bulutlu')) {
+    } else if (conditionText.toLowerCase().contains('partly cloudy')) {
       return 'assets/icons/cloudy.png';
-    } else if (condition.contains('thundery') || condition.contains('fırtına') || condition.contains('şimşek')) {
+    } else if (conditionText.toLowerCase().contains('thundery')) {
       return 'assets/icons/lightning.png';
     } else {
       return 'assets/icons/sun_cloud.png';
     }
+  }
+
+  String _formatApiDateToDay(String dateString) {
+    final date = DateTime.parse(dateString);
+    final now = DateTime.now();
+
+    if (date.year == now.year && date.month == now.month && date.day == now.day) {
+      return "Bugün";
+    }
+
+    const days = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+    return days[date.weekday - 1];
   }
 
   @override
@@ -37,7 +47,7 @@ class WeatherDetailView extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Positioned(
-            top: 260,
+            top: 300,
             child: Image.asset(
               'assets/icons/House.png',
               width: MediaQuery.of(context).size.width * 0.95,
@@ -50,7 +60,6 @@ class WeatherDetailView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 10),
                   Text(
                     weatherData.location.name,
                     style: const TextStyle(
@@ -65,7 +74,7 @@ class WeatherDetailView extends StatelessWidget {
                     '${weatherData.current.tempC.toInt()}°',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 90,
+                      fontSize: 80,
                       fontWeight: FontWeight.w200,
                       height: 1.1,
                     ),
@@ -149,10 +158,11 @@ class WeatherDetailView extends StatelessWidget {
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               padding: const EdgeInsets.symmetric(horizontal: 20),
-                              itemCount: 8,
+                              itemCount: 7,
                               separatorBuilder: (_, __) => const SizedBox(width: 12),
                               itemBuilder: (context, index) {
-                                bool isSelected = index == 1;
+                                bool isSelected = index == 0;
+                                final dateString = DateTime.now().add(Duration(days: index)).toIso8601String();
                                 return Container(
                                   width: 65,
                                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -174,7 +184,7 @@ class WeatherDetailView extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        index == 1 ? "Now" : "${(index * 2) % 12 + 1} AM",
+                                        _formatApiDateToDay(dateString),
                                         style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
                                       ),
                                       Image.asset(
@@ -193,7 +203,7 @@ class WeatherDetailView extends StatelessWidget {
                               },
                             ),
                           ),
-                          const SizedBox(height: 60),
+                          const SizedBox(height: 100),
                         ],
                       ),
                     ),
@@ -202,8 +212,146 @@ class WeatherDetailView extends StatelessWidget {
               );
             },
           ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: CustomWeatherBottomBar(
+              onLocationTap: () {},
+              onAddTap: () {},
+              onListTap: () {},
+            ),
+          ),
         ],
       ),
     );
   }
+}
+
+class CustomWeatherBottomBar extends StatelessWidget {
+  final VoidCallback? onLocationTap;
+  final VoidCallback? onAddTap;
+  final VoidCallback? onListTap;
+
+  const CustomWeatherBottomBar({
+    super.key,
+    this.onLocationTap,
+    this.onAddTap,
+    this.onListTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const double barHeight = 75.0;
+
+    return SizedBox(
+      height: barHeight + 25,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        clipBehavior: Clip.none,
+        children: [
+          CustomPaint(
+            size: Size(MediaQuery.of(context).size.width, barHeight),
+            painter: BottomBarPainter(),
+          ),
+          SizedBox(
+            height: barHeight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.location_on_outlined, color: Colors.white70, size: 28),
+                  onPressed: onLocationTap,
+                ),
+                const SizedBox(width: 50),
+                IconButton(
+                  icon: const Icon(Icons.list, color: Colors.white70, size: 28),
+                  onPressed: onListTap,
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 0,
+            child: GestureDetector(
+              onTap: onAddTap,
+              child: Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.35),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.add,
+                  color: Color(0xFF48319D),
+                  size: 32,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BottomBarPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Color(0xFF3A2D65),
+          Color(0xFF21153B),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..style = PaintingStyle.fill;
+
+    Path path = Path();
+    path.moveTo(0, 15);
+
+    path.lineTo(size.width * 0.32, 15);
+    path.cubicTo(
+      size.width * 0.40, 15,
+      size.width * 0.38, 0,
+      size.width * 0.50, 0,
+    );
+    path.cubicTo(
+      size.width * 0.62, 0,
+      size.width * 0.60, 15,
+      size.width * 0.68, 15,
+    );
+
+    path.lineTo(size.width, 15);
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+
+    Paint borderPaint = Paint()
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke
+      ..shader = LinearGradient(
+        colors: [
+          Colors.white.withValues(alpha: 0.1),
+          Colors.white.withValues(alpha: 0.35),
+          Colors.white.withValues(alpha: 0.1),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    canvas.drawPath(path, paint);
+    canvas.drawPath(path, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

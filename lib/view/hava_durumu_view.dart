@@ -51,7 +51,7 @@ class WeatherList extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF5732B5), Color(0xFF43258A)],
+                colors: [ Color(0xFF48319D) ,  Color(0xFF2E2B5C)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
