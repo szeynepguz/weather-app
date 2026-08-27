@@ -2,10 +2,22 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../model/weather_model.dart';
 
-class WeatherDetailView extends StatelessWidget {
-  final CurrentWeatherResponse weatherData;
+class WeatherDetailView extends StatefulWidget {
+  final List<CurrentWeatherResponse> weatherList;
+  final int initialIndex;
 
-  const WeatherDetailView({super.key, required this.weatherData});
+  const WeatherDetailView({
+    super.key,
+    required this.weatherList,
+    this.initialIndex = 0,
+  });
+
+  @override
+  State<WeatherDetailView> createState() => _WeatherDetailViewState();
+}
+
+class _WeatherDetailViewState extends State<WeatherDetailView> {
+  int _currentIndex = 0;
 
   String _getWeatherIcon(String conditionText) {
     if (conditionText.toLowerCase().contains('rain')) {
@@ -33,8 +45,113 @@ class WeatherDetailView extends StatelessWidget {
     return days[date.weekday - 1];
   }
 
+  void _showCitySelectionModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF2E1A47),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  "Kayıtlı Konumlar",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: widget.weatherList.length,
+                  separatorBuilder: (_, _) => Divider(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    height: 1,
+                  ),
+                  itemBuilder: (context, index) {
+                    final isSelected = index == _currentIndex;
+
+                    return ListTile(
+                      title: Text(
+                        widget.weatherList[index].location.name,
+                        style: TextStyle(
+                          color: isSelected ? const Color(0xFF9D84EA) : Colors.white,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          fontSize: 16,
+                        ),
+                      ),
+                      subtitle: Text(
+                        widget.weatherList[index].current.condition.text,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.6),
+                          fontSize: 13,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            _getWeatherIcon(widget.weatherList[index].current.condition.text),
+                            width: 28,
+                            height: 28,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '${widget.weatherList[index].current.tempC.toInt()}°',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.weatherList.isEmpty) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF2E1A47),
+        body: Center(child: Text("Hava durumu verisi bulunamadı.", style: TextStyle(color: Colors.white))),
+      );
+    }
+
+    final weatherData = widget.weatherList[_currentIndex];
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFF2E1A47),
@@ -159,7 +276,7 @@ class WeatherDetailView extends StatelessWidget {
                               scrollDirection: Axis.horizontal,
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               itemCount: 7,
-                              separatorBuilder: (_, __) => const SizedBox(width: 12),
+                              separatorBuilder: (_, _) => const SizedBox(width: 12),
                               itemBuilder: (context, index) {
                                 bool isSelected = index == 0;
                                 final dateString = DateTime.now().add(Duration(days: index)).toIso8601String();
@@ -217,7 +334,7 @@ class WeatherDetailView extends StatelessWidget {
             right: 0,
             bottom: 0,
             child: CustomWeatherBottomBar(
-              onLocationTap: () {},
+              onLocationTap: () => _showCitySelectionModal(context),
               onAddTap: () {},
               onListTap: () {},
             ),

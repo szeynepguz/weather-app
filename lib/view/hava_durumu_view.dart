@@ -51,7 +51,7 @@ class WeatherList extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [ Color(0xFF48319D) ,  Color(0xFF2E2B5C)],
+                colors: [Color(0xFF48319D), Color(0xFF2E2B5C)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -73,7 +73,8 @@ class WeatherList extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => WeatherDetailView(
-                        weatherData: controller.weatherList[index],
+                        weatherList: controller.weatherList,
+                        initialIndex: index,
                       ),
                     ),
                   );
