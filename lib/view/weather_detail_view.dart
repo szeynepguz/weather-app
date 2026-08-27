@@ -17,7 +17,13 @@ class WeatherDetailView extends StatefulWidget {
 }
 
 class _WeatherDetailViewState extends State<WeatherDetailView> {
-  int _currentIndex = 0;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   String _getWeatherIcon(String conditionText) {
     if (conditionText.toLowerCase().contains('rain')) {
@@ -31,18 +37,6 @@ class _WeatherDetailViewState extends State<WeatherDetailView> {
     } else {
       return 'assets/icons/sun_cloud.png';
     }
-  }
-
-  String _formatApiDateToDay(String dateString) {
-    final date = DateTime.parse(dateString);
-    final now = DateTime.now();
-
-    if (date.year == now.year && date.month == now.month && date.day == now.day) {
-      return "Bugün";
-    }
-
-    const days = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
-    return days[date.weekday - 1];
   }
 
   void _showCitySelectionModal(BuildContext context) {
@@ -253,18 +247,14 @@ class _WeatherDetailViewState extends State<WeatherDetailView> {
                             ),
                           ),
                           const SizedBox(height: 14),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 32),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  "Hourly Forecast",
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15),
-                                ),
                                 Text(
-                                  "Weekly Forecast",
-                                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontWeight: FontWeight.w600, fontSize: 15),
+                                  "Other Cities",
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15),
                                 ),
                               ],
                             ),
@@ -275,46 +265,63 @@ class _WeatherDetailViewState extends State<WeatherDetailView> {
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               padding: const EdgeInsets.symmetric(horizontal: 20),
-                              itemCount: 7,
+                              itemCount: widget.weatherList.length,
                               separatorBuilder: (_, _) => const SizedBox(width: 12),
                               itemBuilder: (context, index) {
-                                bool isSelected = index == 0;
-                                final dateString = DateTime.now().add(Duration(days: index)).toIso8601String();
-                                return Container(
-                                  width: 65,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(30),
-                                    color: isSelected ? const Color(0xFF48319D) : const Color(0xFF2E2B5C).withValues(alpha: 0.5),
-                                    border: Border.all(
-                                      color: isSelected ? Colors.white.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1),
+                                final isSelected = index == _currentIndex;
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _currentIndex = index;
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 75,
+                                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30),
+                                      color: isSelected ? const Color(0xFF48319D) : const Color(0xFF2E2B5C).withValues(alpha: 0.5),
+                                      border: Border.all(
+                                        color: isSelected ? Colors.white.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.2),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        )
+                                      ],
                                     ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.2),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      )
-                                    ],
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        _formatApiDateToDay(dateString),
-                                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-                                      ),
-                                      Image.asset(
-                                        _getWeatherIcon(weatherData.current.condition.text),
-                                        width: 32,
-                                        height: 32,
-                                        fit: BoxFit.contain,
-                                      ),
-                                      Text(
-                                        '${weatherData.current.tempC.toInt()}°',
-                                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                           widget.weatherList[index].location.name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Image.asset(
+                                          _getWeatherIcon( widget.weatherList[index].current.condition.text),
+                                          width: 32,
+                                          height: 32,
+                                          fit: BoxFit.contain,
+                                        ),
+                                        Text(
+                                          '${ widget.weatherList[index].current.tempC.toInt()}°',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },
